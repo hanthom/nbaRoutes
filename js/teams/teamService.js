@@ -4,6 +4,7 @@ app.service('teamService', function ($http, $q) {
 
     // service code
     this.addNewGame = function(gameObj) {
+        console.log(gameObj.homeTeam);
     	var url = 'https://api.parse.com/1/classes/' + gameObj.homeTeam;
 
     	if (parseInt(gameObj.homeTeamScore) > parseInt(gameObj.opponentScore)) {
@@ -12,7 +13,7 @@ app.service('teamService', function ($http, $q) {
     	else {
     		gameObj.won = false;
     	}
-
+        console.log(gameObj);
     	return $http({
     		method: 'POST',
     		url: url,
@@ -22,7 +23,7 @@ app.service('teamService', function ($http, $q) {
 
     this.getTeamData = function(team) {
     	var deferred = $q.defer();
-    	var url = 'https://api.parse.com/1/classes/' + team;
+    	var url = 'https://api.parse.com/1/classes/' + team + '?order=-createdAt';
 
     	$http({
     		method: 'GET',
@@ -39,14 +40,31 @@ app.service('teamService', function ($http, $q) {
     			else {
     				losses++;
     			}
+
+                switch(results[i].homeTeam) {
+                    case "utahjazz":
+                        results[i].homeTeam = "Utah Jazz";
+                        break;
+                    case "losangeleslakers":
+                        results[i].homeTeam = "Minneapolis Lakers";
+                        break;
+                    case "miamiheat":
+                        results[i].homeTeam = "Miami Heat";
+                        break;
+                }
     		}
+
     		results.wins = wins;
     		results.losses = losses;
 
-    		return deferred.promise;
-
+            // var resultsObj = {
+            //     gameArray: results,
+            //     wins: wins,
+            //     losses: losses
+            // };
+            deferred.resolve(results);
     	})
-
+        return deferred.promise;
     }
 
 
